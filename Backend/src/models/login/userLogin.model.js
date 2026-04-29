@@ -71,46 +71,46 @@ const userLoginSchema = new Schema(
 
     //todo Start date for password expiry clock (set on first login after password change)
 
-    // passwordExpiryStart: { type: Date, default: null },
+    passwordExpiryStart: { type: Date, default: null },
 
 
     //todo Optional: Store password history (last 5 hashes) to prevent reuse
-    // lastPasswordChange: [
-    //   {
-    //     // When the password was changed
-    //     changedAt: { type: Date, default: Date.now },
+    lastPasswordChange: [
+      {
+        // When the password was changed
+        changedAt: { type: Date, default: Date.now },
         
-    //     // Network and Device Information
-    //     ipAddress: String, // IP address from which change was initiated
+        // Network and Device Information
+        ipAddress: String, // IP address from which change was initiated
         
-    //     deviceId: String, // Device identifier if changed from logged-in device
+        deviceId: String, // Device identifier if changed from logged-in device
         
-    //     // Who Changed It
+        // Who Changed It
        
-    //     changedByUserId: {
-    //       type: Schema.Types.ObjectId,
-    //       ref: "User",
-    //       default: null, // Null if self, otherwise admin user ID
-    //     },
+        changedByUserId: {
+          type: Schema.Types.ObjectId,
+          ref: "User",
+          default: null, // Null if self, otherwise admin user ID
+        },
         
         
           
-    //     // Previous Password Hash (for recovery purposes - encrypted)
-    //     previousPasswordHash: String, // Can be used to prevent reuse
+        // Previous Password Hash (for recovery purposes - encrypted)
+        previousPasswordHash: String, // Can be used to prevent reuse
         
-    //     // Audit Trail
-    //     // mfaVerified: { type: Boolean, default: false }, // Was MFA verified for this change
-    //     requiresVerification: { type: Boolean, default: false }, // Needs email/phone verification
-    //     verificationCode: { type: String, select: false }, // Hashed verification code
-    //     verificationExpiresAt: Date,
-    //     verificationAttempts: { type: Number, default: 0 },
+        // Audit Trail
+        // mfaVerified: { type: Boolean, default: false }, // Was MFA verified for this change
+        requiresVerification: { type: Boolean, default: false }, // Needs email/phone verification
+        verificationCode: { type: String, select: false }, // Hashed verification code
+        verificationExpiresAt: Date,
+        verificationAttempts: { type: Number, default: 0 },
         
-    //     // Session Information
-    //     sessionId: String, // Session ID in which change was made
-    //     correlationId: String, // For tracking related operations
-    //   }
+        // Session Information
+        sessionId: String, // Session ID in which change was made
+        correlationId: String, // For tracking related operations
+      }
       
-    // ],
+    ],
 
     totalLoginCount: { type: Number, default: 0 }, // Total number of successful logins across all devices
     loggedInDevices: [
@@ -220,17 +220,65 @@ userLoginSchema.methods.isLocked = function () {
 // Instance method to increment failed attempts
 userLoginSchema.methods.incrementFailedAttempts = function () {
   this.failedLoginAttempts += 1;
-  if (this.failedLoginAttempts >= 5) {
-    this.lockLevel = Math.min(this.lockLevel + 1, 3);
-    this.lockUntil = new Date(Date.now() + (this.lockLevel * 15 * 60 * 1000)); // 15min, 30min, 45min
+  const limit = parseInt(process.env.LOGIN_ATTEMPT_LIMIT) || 5;
+
+  if (this.failedLoginAttempts >= limit) {
+    this.lockLevel += 1;
+
+    if (this.lockLevel === 1) {
+      // First lock: 5 minutes
+      const window = parseInt(process.env.LOGIN_ATTEMPT_WINDOW_FIRST) || 5;
+      this.lockUntil = new Date(Date.now() + window * 60 * 1000);
+    } else if (this.lockLevel === 2) {
+      // Second lock: 10 minutes
+      const window = parseInt(process.env.LOGIN_ATTEMPT_WINDOW_SECOND) || 10;
+      this.lockUntil = new Date(Date.now() + window * 60 * 1000);
+    } else if (this.lockLevel >= 3) {
+      // Third time: Permanent lock
+      this.isPermanentlyLocked = true;
+      this.lockUntil = null; // No expiration
+    }
+
+    this.failedLoginAttempts = 0; // Reset attempts after locking
   }
 };
 
-// Instance method to reset failed attempts
-userLoginSchema.methods.resetFailedAttempts = function () {
-  this.failedLoginAttempts = 0;
-  this.lockLevel = 0;
-  this.lockUntil = null;
+// Instance method to check if password is expired
+userLoginSchema.methods.isPasswordExpired = function () {
+  if (!this.passwordExpiryStart) return false;
+  const expiryDays = parseInt(process.env.LAST_PASSWORD_CHANGE_WINDOW) || 90;
+  const expiryDate = new Date(this.passwordExpiryStart);
+  expiryDate.setDate(expiryDate.getDate() + expiryDays);
+  return new Date() > expiryDate;
+};
+
+// Instance method to change password
+userLoginSchema.methods.changePassword = async function (newPassword, changedByUserId = null, ipAddress = null, deviceId = null, sessionId = null) {
+  // Store previous password hash in history
+  if (this.lastPasswordChange.length >= 5) {
+    this.lastPasswordChange.shift(); // Keep only last 5
+  }
+  this.lastPasswordChange.push({
+    changedAt: new Date(),
+    ipAddress,
+    deviceId,
+    changedByUserId,
+    previousPasswordHash: this.password, // Store old hash
+    sessionId,
+    correlationId: uuidv4(),
+  });
+
+  // Update password
+  this.password = newPassword; // Will be hashed by pre-save hook
+  this.passwordExpiryStart = new Date(); // Reset expiry clock
+  this.forcePasswordChange = false; // Reset force change flag
+
+  // Increment token version for all devices to invalidate old tokens
+  this.loggedInDevices.forEach(device => {
+    device.tokenVersion += 1;
+  });
+
+  await this.save();
 };
 
 export const UserLogin = mongoose.model("UserLogin", userLoginSchema);
