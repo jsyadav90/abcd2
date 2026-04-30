@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import UserIcon from '../../../svg/User.svg';
 import AssetIcon from '../../../svg/Asset.svg';
 import SetupIcon from '../../../svg/Setup.svg';
@@ -14,9 +14,38 @@ const user = {
 
 const SideMenu = ({ isOpen }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   const toggleUserMenu = () => {
     setIsUserMenuOpen((prev) => !prev);
+  };
+
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setIsUserMenuOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isUserMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isUserMenuOpen]);
+
+  const handleMenuItemClick = (action) => {
+    // Handle navigation or actions here
+    console.log(`Clicked: ${action}`);
+    setIsUserMenuOpen(false);
+    // Add your navigation logic here, e.g.:
+    // if (action === 'profile') navigate('/profile');
+    // if (action === 'change-password') navigate('/change-password');
+    // if (action === 'logout') handleLogout();
   };
 
   return (
@@ -57,22 +86,34 @@ const SideMenu = ({ isOpen }) => {
         </button>
 
         {isUserMenuOpen && (
-          <div className="side-menu__user-dropdown">
+          <div ref={dropdownRef} className="side-menu__user-dropdown">
             <ul>
               <li>
-                <button type="button" className="side-menu__dropdown-item">
+                <button
+                  type="button"
+                  className="side-menu__dropdown-item"
+                  onClick={() => handleMenuItemClick('profile')}
+                >
                   <img src={ProfileIcon} className="side-menu__dropdown-icon" alt="Profile icon" />
                   <span>Profile</span>
                 </button>
               </li>
               <li>
-                <button type="button" className="side-menu__dropdown-item">
+                <button
+                  type="button"
+                  className="side-menu__dropdown-item"
+                  onClick={() => handleMenuItemClick('change-password')}
+                >
                   <img src={PasswordIcon} className="side-menu__dropdown-icon" alt="Change Password icon" />
                   <span>Change Password</span>
                 </button>
               </li>
               <li>
-                <button type="button" className="side-menu__dropdown-item">
+                <button
+                  type="button"
+                  className="side-menu__dropdown-item"
+                  onClick={() => handleMenuItemClick('logout')}
+                >
                   <img src={LogoutIcon} className="side-menu__dropdown-icon" alt="Logout icon" />
                   <span>Logout</span>
                 </button>
