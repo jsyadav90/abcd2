@@ -1,0 +1,32 @@
+.main-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-layout__body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  height: calc(100vh - var(--header-height));
+}
+
+.main-layout__main {
+  flex: 1;
+  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  overflow-y: auto;
+}
+
+.main-layout__main h2 {
+  margin-bottom: var(--spacing-md);
+  color: var(--color-primary);
+}
+
+@media (max-width: 768px) {
+  .main-layout__body {
+    flex-direction: column;
+  }
+}
