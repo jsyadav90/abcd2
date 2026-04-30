@@ -7,18 +7,6 @@ import PasswordIcon from '../../../svg/Password.svg';
 import LogoutIcon from '../../../svg/Logout.svg';
 import './SideMenu.css';
 
-const menuItems = [
-  { href: 'user', label: 'User', icon: UserIcon },
-  { href: 'asset', label: 'Asset', icon: AssetIcon },
-  { href: 'setup', label: 'Setup', icon: SetupIcon },
-];
-
-const userDropdownItems = [
-  { label: 'Profile', icon: ProfileIcon },
-  { label: 'Change Password', icon: PasswordIcon },
-  { label: 'Logout', icon: LogoutIcon },
-];
-
 const user = {
   name: 'Super Admin',
   initials: 'SA',
@@ -35,14 +23,24 @@ const SideMenu = ({ isOpen }) => {
     <aside className={`side-menu ${isOpen ? 'open' : 'closed'}`}>
       <nav className="side-menu__nav">
         <ul>
-          {menuItems.map((item, index) => (
-            <li key={index}>
-              <a href={item.href} className="side-menu__link">
-                <img src={item.icon} className="side-menu__icon" alt={`${item.label} icon`} />
-                <span>{item.label}</span>
-              </a>
-            </li>
-          ))}
+          <li>
+            <a href="user" className="side-menu__link">
+              <img src={UserIcon} className="side-menu__icon" alt="User icon" />
+              <span>User</span>
+            </a>
+          </li>
+          <li>
+            <a href="asset" className="side-menu__link">
+              <img src={AssetIcon} className="side-menu__icon" alt="Asset icon" />
+              <span>Asset</span>
+            </a>
+          </li>
+          <li>
+            <a href="setup" className="side-menu__link">
+              <img src={SetupIcon} className="side-menu__icon" alt="Setup icon" />
+              <span>Setup</span>
+            </a>
+          </li>
         </ul>
       </nav>
 
@@ -61,18 +59,24 @@ const SideMenu = ({ isOpen }) => {
         {isUserMenuOpen && (
           <div className="side-menu__user-dropdown">
             <ul>
-              {userDropdownItems.map((item, index) => (
-                <li key={index}>
-                  <button type="button" className="side-menu__dropdown-item">
-                    <img
-                      src={item.icon}
-                      className="side-menu__dropdown-icon"
-                      alt={`${item.label} icon`}
-                    />
-                    <span>{item.label}</span>
-                  </button>
-                </li>
-              ))}
+              <li>
+                <button type="button" className="side-menu__dropdown-item">
+                  <img src={ProfileIcon} className="side-menu__dropdown-icon" alt="Profile icon" />
+                  <span>Profile</span>
+                </button>
+              </li>
+              <li>
+                <button type="button" className="side-menu__dropdown-item">
+                  <img src={PasswordIcon} className="side-menu__dropdown-icon" alt="Change Password icon" />
+                  <span>Change Password</span>
+                </button>
+              </li>
+              <li>
+                <button type="button" className="side-menu__dropdown-item">
+                  <img src={LogoutIcon} className="side-menu__dropdown-icon" alt="Logout icon" />
+                  <span>Logout</span>
+                </button>
+              </li>
             </ul>
           </div>
         )}
