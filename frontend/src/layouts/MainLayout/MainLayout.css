@@ -9,11 +9,11 @@
   flex: 1;
   min-height: 0;
   height: calc(100vh - var(--header-height));
+  position: relative;
 }
 
 .main-layout__main {
   flex: 1;
-  padding: var(--spacing-xl);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -25,8 +25,21 @@
   color: var(--color-primary);
 }
 
-@media (max-width: 768px) {
+.main-layout__overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  top: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 50;
+}
+
+@media (max-width: 992px) {
   .main-layout__body {
     flex-direction: column;
+  }
+
+  .main-layout__overlay {
+    display: block;
   }
 }

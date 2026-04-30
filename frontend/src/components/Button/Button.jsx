@@ -1,9 +1,17 @@
 import React from 'react';
 import './Button.css';
 
-const Button = ({ children, onClick, type = 'button', variant = 'primary' }) => {
+const Button = ({ children, variant = 'primary', size = 'md', onClick, disabled, type = 'button', ...props }) => {
+  const className = `button button--${variant} button--${size}`;
+
   return (
-    <button className={`button button--${variant}`} onClick={onClick} type={type}>
+    <button
+      type={type}
+      className={className}
+      onClick={onClick}
+      disabled={disabled}
+      {...props}
+    >
       {children}
     </button>
   );

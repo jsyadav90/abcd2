@@ -1,0 +1,139 @@
+/* ProfileCard Component Styles */
+
+.profile-card .card-body {
+  padding: 1rem 1.25rem;
+}
+
+.profile-row {
+  display: grid;
+  grid-template-columns: 0.7fr 1fr 1fr;
+  gap: 1rem;
+  align-items: center;
+  padding: 5px 10px;
+}
+
+.user-meta {
+  display: flex;
+  gap: 1.75rem;
+  align-items: center;
+}
+
+.avatar {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #FFB84D;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.3rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #111827;
+}
+
+.user-role {
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.user-email {
+  color: #9ca3af;
+  font-size: 0.8rem;
+}
+
+.user-id {
+  color: #9ca3af;
+  font-size: 0.8rem;
+}
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  align-items: end;
+}
+
+.filter {
+  min-width: 16rem;
+}
+
+.filter-label {
+  display: block;
+  font-size: 0.85rem;
+  color: #374151;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+.filter-btn {
+  align-self: center;
+}
+
+@media (max-width: 1376px) {
+  .profile-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .profile-row {
+    /* grid-template-columns: 1fr; */
+  }
+
+  .filters {
+    /* flex-direction: column; */
+    width: 100%;
+  }
+
+  .filter {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-row {
+    grid-template-columns: 1fr 2fr;
+  }
+
+  .user-meta {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .filters {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .filter {
+    /* width: 100%;
+    min-width: unset; */
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .filter-btn {
+    align-self: stretch;
+  }
+}
+
+@media (max-width: 376px) {
+  .profile-row {
+    grid-template-columns: 1fr ;
+  }
+  .user-meta {
+    flex-direction: row;
+    text-align: center;
+    gap: 1rem;
+  }
+}

@@ -80,6 +80,7 @@ body {
   --header-height: 4rem; /* 56px */
   --side-menu-width: 5rem; /* 80px */
   --side-menu-height: calc(100vh - var(--header-height));
+  /* --side-menu-color: #1F2937; */
   --side-menu-color: #1F2937;
   --header-color: #1F2937;  
   --logo-color: #fbbf24;
